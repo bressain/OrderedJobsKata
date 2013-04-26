@@ -1,4 +1,7 @@
-﻿namespace OrderedJobsKata
+﻿using System;
+using System.Linq;
+
+namespace OrderedJobsKata
 {
     public class JobOrderer
     {
@@ -6,7 +9,9 @@
         {
             if (string.IsNullOrEmpty(jobs))
                 return "";
-            return jobs[0].ToString();
+
+            var lines = jobs.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            return string.Join("", lines.Select(x => x[0]));
         }
     }
 }

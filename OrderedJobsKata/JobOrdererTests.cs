@@ -24,5 +24,15 @@ namespace OrderedJobsKata
         {
             Assert.That(_jobOrderer.GetJobOrdering("a =>"), Is.EqualTo("a"));
         }
+
+        [Test]
+        public void Multiple_jobs_gives_jobs_in_given_order()
+        {
+            const string JOBS =
+                "a =>\n" +
+                "b =>\n" +
+                "c =>\n";
+            Assert.That(_jobOrderer.GetJobOrdering(JOBS), Is.EqualTo("abc"));
+        }
     }
 }
