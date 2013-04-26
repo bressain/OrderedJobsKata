@@ -2,9 +2,11 @@
 {
     public class JobOrderer
     {
-        public string GetOrder(string jobs)
+        public string GetJobOrdering(string jobs)
         {
-            return jobs;
+            if (string.IsNullOrEmpty(jobs))
+                return "";
+            return jobs[0].ToString();
         }
     }
 }
