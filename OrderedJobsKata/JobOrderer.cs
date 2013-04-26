@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace OrderedJobsKata
 {
@@ -15,17 +16,18 @@ namespace OrderedJobsKata
             return OrderJobs(parsed);
         }
 
-        private string OrderJobs(IEnumerable<Job> jobs)
+        private string OrderJobs(IList<Job> jobs)
         {
-            string result = "";
-            foreach (var j in jobs)
-            {
-                if (!string.IsNullOrEmpty(j.DependencyName))
-                    result += j.DependencyName;
-                if (!result.Contains(j.Name))
-                    result += j.Name;
-            }
-            return result;
+            return jobs.Aggregate("", (current, j) => current + GetJobDependencies(j, current, jobs));
+        }
+
+        private string GetJobDependencies(Job current, string result, IList<Job> jobs)
+        {
+            if (result.Contains(current.Name))
+                return "";
+            if (string.IsNullOrEmpty(current.DependencyName))
+                return current.Name;
+            return GetJobDependencies(jobs.Single(x => x.Name == current.DependencyName), result, jobs) + current.Name;
         }
 
         private static string[] SplitJobs(string jobs)
@@ -33,7 +35,7 @@ namespace OrderedJobsKata
             return jobs.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
         }
 
-        private IEnumerable<Job> ParseJobs(string[] jobLines)
+        private IList<Job> ParseJobs(string[] jobLines)
         {
             var jobs = new List<Job>(jobLines.Length);
             foreach (var jl in jobLines)
