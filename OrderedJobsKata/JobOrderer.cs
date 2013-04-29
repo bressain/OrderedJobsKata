@@ -6,19 +6,16 @@ namespace OrderedJobsKata
 {
     public class JobOrderer
     {
+        private readonly HashSet<string> _jobsSeen = new HashSet<string>();
+
         public string GetJobOrdering(string jobs)
         {
-            if (string.IsNullOrEmpty(jobs))
-                return "";
-
-            var lines = SplitJobs(jobs);
-            var parsed = ParseJobs(lines);
-            return OrderJobs(parsed);
+            return OrderJobs(JobParser.ParseJobs(jobs));
         }
 
         private string OrderJobs(IList<Job> jobs)
         {
-            return jobs.Aggregate("", (current, j) => current + GetJobDependencies(j, current, jobs));
+            return jobs.Aggregate("", (current, job) => current + GetJobDependencies(job, current, jobs));
         }
 
         private string GetJobDependencies(Job current, string result, IList<Job> jobs)
@@ -27,34 +24,17 @@ namespace OrderedJobsKata
                 return "";
             if (string.IsNullOrEmpty(current.DependencyName))
                 return current.Name;
+
+            ThrowIfCircularDependencyFound(current);
+
             return GetJobDependencies(jobs.Single(x => x.Name == current.DependencyName), result, jobs) + current.Name;
         }
 
-        private static string[] SplitJobs(string jobs)
+        private void ThrowIfCircularDependencyFound(Job current)
         {
-            return jobs.Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
-        }
-
-        private IList<Job> ParseJobs(string[] jobLines)
-        {
-            var jobs = new List<Job>(jobLines.Length);
-            foreach (var jl in jobLines)
-            {
-                var split = jl.Split(new[] { "=>" }, StringSplitOptions.RemoveEmptyEntries);
-                var job = new Job { Name = split[0].Trim() };
-                if (split.Length > 1)
-                    job.DependencyName = split[1].Trim();
-                if (job.Name == job.DependencyName)
-                    throw new ArgumentException("Job can't depend on itself");
-                jobs.Add(job);
-            }
-            return jobs;
-        }
-
-        private class Job
-        {
-            public string Name { get; set; }
-            public string DependencyName { get; set; }
+            if (_jobsSeen.Contains(current.Name))
+                throw new ArgumentException("Circular dependency detected!");
+            _jobsSeen.Add(current.Name);
         }
     }
 }

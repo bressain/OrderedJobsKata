@@ -68,5 +68,19 @@ namespace OrderedJobsKata
                 "c => c";
             Assert.Throws<ArgumentException>(() => _jobOrderer.GetJobOrdering(JOBS));
         }
+
+        [Test]
+        public void Circular_dependencies_are_not_allowed()
+        {
+            const string JOBS =
+                "a =>\n" +
+                "b => c\n" +
+                "c => f\n" +
+                "d => a\n" +
+                "e =>\n" +
+                "f => b";
+            Assert.Throws<ArgumentException>(() => _jobOrderer.GetJobOrdering(JOBS));
+        }
+
     }
 }
