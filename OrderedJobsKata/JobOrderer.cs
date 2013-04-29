@@ -44,6 +44,8 @@ namespace OrderedJobsKata
                 var job = new Job { Name = split[0].Trim() };
                 if (split.Length > 1)
                     job.DependencyName = split[1].Trim();
+                if (job.Name == job.DependencyName)
+                    throw new ArgumentException("Job can't depend on itself");
                 jobs.Add(job);
             }
             return jobs;

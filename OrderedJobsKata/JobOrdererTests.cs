@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 
 namespace OrderedJobsKata
 {
@@ -31,7 +32,7 @@ namespace OrderedJobsKata
             const string JOBS =
                 "a =>\n" +
                 "b =>\n" +
-                "c =>\n";
+                "c =>";
             Assert.That(_jobOrderer.GetJobOrdering(JOBS), Is.EqualTo("abc"));
         }
 
@@ -41,7 +42,7 @@ namespace OrderedJobsKata
             const string JOBS =
                 "a =>\n" +
                 "b => c\n" +
-                "c =>\n";
+                "c =>";
             Assert.That(_jobOrderer.GetJobOrdering(JOBS), Is.EqualTo("acb"));
         }
 
@@ -56,6 +57,16 @@ namespace OrderedJobsKata
                 "e => b\n" +
                 "f =>";
             Assert.That(_jobOrderer.GetJobOrdering(JOBS), Is.EqualTo("afcbde"));
+        }
+
+        [Test]
+        public void Self_referencing_jobs_are_not_allowed()
+        {
+            const string JOBS =
+                "a =>\n" +
+                "b =>\n" +
+                "c => c";
+            Assert.Throws<ArgumentException>(() => _jobOrderer.GetJobOrdering(JOBS));
         }
     }
 }
